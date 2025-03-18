@@ -62,11 +62,11 @@ namespace Pkg.Logs
         //        new EnvironmentEnricher());
         //}
 
-        private static LoggerConfiguration AddCustomEnrichers(this LoggerConfiguration configuration, params ILogEventEnricher[] enrichers)
-        {
-            return configuration
-                .Enrich.With(enrichers);
-        }
+        //private static LoggerConfiguration AddCustomEnrichers(this LoggerConfiguration configuration, params ILogEventEnricher[] enrichers)
+        //{
+        //    return configuration
+        //        .Enrich.With(enrichers);
+        //}
 
         private static LoggerConfiguration ConfigureElasticsearchkiSinks(this LoggerConfiguration configuration)
         {
