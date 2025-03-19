@@ -74,24 +74,31 @@ namespace Pkg.Logs
         {
             return configuration
                 .WriteTo.Console()
-                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://127.0.0.1:9200"))
+                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+                //.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://elklogs.internalstaging:9200"))
                 {
                     // TODO: Puxar discussão de qual index usar: ServiceName, MicroServiceName, indicador de ambiente?
                     // Seria interessante ter todos os logs em um lugar só caso eu queira pesquisar por TraceId ou algo assim
                     // Vi que o no index-pattern tem como criar um com apenas *
-                    IndexDecider = (_, offset) => $"Serilog.Elk.POC.{offset.Date.Year}.{offset.Date.Month}.{offset.Date.Day}",
-                    IndexFormat = "Serilog.Elk.POC." + ".{0:yyyy.MM.dd}",
+                    // ATENÇÃO: IndexDecider não pode ter letras maiúsculas - por algum motivo não chega no ELK
+                    IndexDecider = (_, offset) => $"serilog.elk.poc.{offset.Date.Year}.{offset.Date.Month}.{offset.Date.Day}",
+                    IndexFormat = "serilog.elk.poc." + ".{0:yyyy.MM.dd}",
                     ConnectionTimeout = TimeSpan.FromSeconds(10),
                     // TODO: FailureCallback tem a Exception que ocorreu ao tentar enviar o log na versão 10 do pacote Serilog.Sinks.Elasticsearch mas ela está depreciada https://www.nuget.org/packages/Serilog.Sinks.Elasticsearch/10.0.0#releasenotes-body-tab
                     // TODO: Fazer testes com o pacote Elastic.Serilog.Sinks para ver se a compatível com a versão atual do ELK que usamos.
                     // Elastic.Serilog.Sinks é o pacote que substitui Serilog.Sinks.Elasticsearch: https://github.com/serilog-contrib/serilog-sinks-elasticsearch?tab=readme-ov-file
                     // MR com a adição do erro de envio do evento: https://github.com/serilog-contrib/serilog-sinks-elasticsearch/pull/449
-                    FailureCallback = @event => Console.WriteLine($"Falha ao enviar logs para o ELK: {@event.Exception?.Message}"), 
+                    FailureCallback = HandleFailureCallback, 
                     EmitEventFailure = EmitEventFailureHandling.RaiseCallback,
-                    CustomFormatter = new ElasticsearchJsonFormatter(),
+                    CustomFormatter = new ElasticsearchJsonFormatter(), // Atenção na formatação sem essa propriedade
                     MinimumLogEventLevel = LogEventLevel.Information,
                     AutoRegisterTemplate = true,
                 });
+        }
+
+        private static void HandleFailureCallback(LogEvent logEvent)
+        {
+            Console.WriteLine($"Falha ao enviar logs para o ELK: {logEvent?.MessageTemplate}");
         }
     }
 }
