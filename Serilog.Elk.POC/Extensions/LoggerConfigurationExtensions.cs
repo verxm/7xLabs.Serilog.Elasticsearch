@@ -88,7 +88,7 @@ namespace Pkg.Logs
                     // TODO: Fazer testes com o pacote Elastic.Serilog.Sinks para ver se a compatível com a versão atual do ELK que usamos.
                     // Elastic.Serilog.Sinks é o pacote que substitui Serilog.Sinks.Elasticsearch: https://github.com/serilog-contrib/serilog-sinks-elasticsearch?tab=readme-ov-file
                     // MR com a adição do erro de envio do evento: https://github.com/serilog-contrib/serilog-sinks-elasticsearch/pull/449
-                    FailureCallback = HandleFailureCallback, 
+                    FailureCallback = HandleFailureCallback,
                     EmitEventFailure = EmitEventFailureHandling.RaiseCallback,
                     CustomFormatter = new ElasticsearchJsonFormatter(), // Atenção na formatação sem essa propriedade
                     MinimumLogEventLevel = LogEventLevel.Information,
@@ -100,5 +100,33 @@ namespace Pkg.Logs
         {
             Console.WriteLine($"Falha ao enviar logs para o ELK: {logEvent?.MessageTemplate}");
         }
+
+        // Considerações sobre o pacote Elastic.Serilog.Sinks
+        //O Elastic.Serilog.Sinkspacote foi projetado para funcionar com o Elasticsearch 8.x e superiores, não com o Elasticsearch versão 7.11.1. 
+        //Aqui está uma explicação mais detalhada:
+        //Compatibilidade:
+        //O Elastic.Serilog.Sinkspacote, que é o pacote recomendado para registro do Serilog no Elasticsearch, foi criado especificamente para o Elasticsearch 8.x e superior.
+        //Motivo da incompatibilidade:
+        //O processo de bootstrapping do pacote tenta carregar modelos projetados para o Elasticsearch 8.0 e posteriores, tornando-o incompatível com versões anteriores, como a 7.11.1. 
+        //Pacote legado:
+        //Se você estiver usando uma versão mais antiga do Elasticsearch, talvez seja necessário usar o Serilog.Sinks.Elasticsearchpacote legado, que não é mais mantido.
+        //Migração:
+        //Se estiver usando o pacote legado, você deverá migrar para o novo Elastic.Serilog.Sinkspacote quando estiver pronto para atualizar para o Elasticsearch 8.x ou superior.
+        //private static LoggerConfiguration ConfigureElasticsearchkiSinkWithNewPackage(this LoggerConfiguration configuration)
+        //{
+        //    return configuration
+        //        .WriteTo.Console()
+        //        .WriteTo.Elasticsearch(new[] { new Uri("http://localhost:9200") },
+        //            options =>
+        //            {
+        //                options.DataStream = new DataStreamName("serilog.elk.poc");
+        //                options.TextFormatting = new EcsTextFormatterConfiguration();
+        //                options.BootstrapMethod = BootstrapMethod.Failure;
+        //                options.ConfigureChannel = channelOptions =>
+        //                {
+        //                    channelOptions.BufferOptions = new BufferOptions();
+        //                };
+        //            });
+        //}
     }
 }
