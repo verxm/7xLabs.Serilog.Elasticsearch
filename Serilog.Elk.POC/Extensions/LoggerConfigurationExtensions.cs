@@ -98,7 +98,7 @@ namespace Pkg.Logs
 
         private static void HandleFailureCallback(LogEvent logEvent)
         {
-            Console.WriteLine($"Falha ao enviar logs para o ELK: {logEvent?.MessageTemplate}");
+            Console.WriteLine($"Sending log to Elasticsearch failed. LogEvent.MessageTemplate: {logEvent?.MessageTemplate}");
         }
 
         // Considerações sobre o pacote Elastic.Serilog.Sinks
