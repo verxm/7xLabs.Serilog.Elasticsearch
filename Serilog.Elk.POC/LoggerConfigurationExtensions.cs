@@ -1,7 +1,8 @@
-﻿using Serilog;
-using Serilog.Elk.POC.Extensions;
+﻿using Serilog.Elk.POC.Extensions;
 using Serilog.Elk.POC.Providers;
 using Serilog.Events;
+using Serilog.Exceptions;
+using Serilog.Exceptions.Core;
 using Serilog.Formatting.Elasticsearch;
 using Serilog.Sinks.Elasticsearch;
 using System;
@@ -22,7 +23,7 @@ namespace Serilog.Elk.POC
         }
 
         /// <summary>        
-        /// Add default configuration of MinimumLevel, Enrichers, GrafanaLoki labels with TenantId.        
+        /// Add default configuration of MinimumLevel, Enrichers with TenantId.        
         /// </summary>
         /// <param name="tenantAccessor">Instance of an accessor responsible to get TenantId value of a context.</param>
         //public static LoggerConfiguration AddDefaultConfigurationWithTenant(this LoggerConfiguration configuration, ITenantHeaderAccessor tenantAccessor)
@@ -46,10 +47,10 @@ namespace Serilog.Elk.POC
                 .MinimumLevel.Is(
                     EnvironmentVariableProvider.SerilogEventLevel.ToLogEventLevel())
                 .MinimumLevel.Override(
-                    "Microsoft", 
+                    "Microsoft",
                     EnvironmentVariableProvider.MicrosoftEventLevel.ToLogEventLevel())
                 .MinimumLevel.Override(
-                    "Microsoft.AspNetCore", 
+                    "Microsoft.AspNetCore",
                     EnvironmentVariableProvider.MicrosoftAspNetEventLevel.ToLogEventLevel());
         }
 
@@ -57,11 +58,11 @@ namespace Serilog.Elk.POC
         {
             return configuration
                 .Enrich.FromLogContext()
-                //.Enrich.WithExceptionDetails(new DestructuringOptionsBuilder().WithDefaultDestructurers()) // https://rehansaeed.com/logging-with-serilog-exceptions/
+                .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder().WithDefaultDestructurers()) // https://rehansaeed.com/logging-with-serilog-exceptions/
                 .Enrich.WithProperty("ZSerivceName", EnvironmentVariableProvider.ServiceName)
                 .Enrich.WithProperty("ZMicroServiceName", EnvironmentVariableProvider.MicroServiceName)
                 .Enrich.WithProperty("ZEnvironment", EnvironmentVariableProvider.EnvironmentName);
-                //.AddTraceIdEnricher();
+            //.AddTraceIdEnricher();
         }
 
         //private static LoggerConfiguration AddTraceIdEnricher(this LoggerConfiguration configuration)
@@ -86,7 +87,6 @@ namespace Serilog.Elk.POC
             return configuration
                 .WriteTo.Console()
                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(EnvironmentVariableProvider.ElkUri))
-                //.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://elklogs.internalstaging:9200"))
                 {
                     // TODO: Puxar discussão de qual index usar: ServiceName, MicroServiceName, indicador de ambiente?
                     // Seria interessante ter todos os logs em um lugar só caso eu queira pesquisar por TraceId ou algo assim
