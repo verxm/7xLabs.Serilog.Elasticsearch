@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Runtime.InteropServices;
 
 namespace Api.Tests.Controllers
 {
@@ -23,21 +22,45 @@ namespace Api.Tests.Controllers
         public IEnumerable<WeatherForecast> Get()
         {
             using var logScope = _logger.BeginScope(new Dictionary<string, object>
-            {
-                {"Key1", "Value" },
-                {"Key2", 10 },
-                {"Key3", new {prop0 = 29, prop = "teste"} },
-            });
+                {
+                    {"Key1", "Value" },
+                    {"Key2", 10 },
+                    {"Key3", new {prop0 = 29, prop = "teste"} },
+                });
 
-            _logger.LogInformation("Any log test {@anyObj}", new {test = "Test", test2= 27});
-
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            try
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                _logger.LogInformation("Any log test {@anyObj}", new { test = "Test", test2 = 27 });
+
+                throw new AnyException(new("Value 1", 10), 20);
+
+                return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+                {
+                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                    TemperatureC = Random.Shared.Next(-20, 55),
+                    Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+                })
+                .ToArray();
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                throw;
+            }
         }
     }
+
+    public class AnyException : Exception
+    {
+        public int MyProperty { get; set; }
+        public AnyExceptionData AnyExceptionData { get; set; }
+
+        public AnyException(AnyExceptionData data, int myProperty) : base("Any exception error message")
+        {
+            AnyExceptionData = data;
+            MyProperty = myProperty;
+        }
+    }
+
+    public record AnyExceptionData(string Prop1, int Prop2);
 }
