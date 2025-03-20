@@ -1,5 +1,5 @@
 using Serilog;
-using Pkg.Logs;
+using Serilog.Elk.POC;
 
 var builder = WebApplication.CreateBuilder(args);
 
