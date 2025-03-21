@@ -1,3 +1,4 @@
+using Api.Tests.Accessors;
 using Serilog;
 using Serilog.Elk.POC;
 
@@ -30,9 +31,13 @@ app.Run();
 
 static IServiceCollection ConfigureLogger(IServiceCollection services)
 {
+    var tenantHeaderAccessor = new TenantHeaderAccessorTest();
+
     var logger = new LoggerConfiguration()
-        .AddDefaultConfiguration()
+        .AddDefaultConfigurationWithTenant(tenantHeaderAccessor)
         .CreateLogger();
 
-    return services.AddLogging(lb => lb.AddSerilog(logger));
+    return services
+        .AddHttpContextAccessor() // Required for TenantHeaderAccessorTest
+        .AddLogging(lb => lb.AddSerilog(logger));
 }

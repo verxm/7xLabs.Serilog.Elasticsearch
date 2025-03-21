@@ -34,7 +34,7 @@
 
         "ElkUri": "http://127.0.0.1:9200",
         "SerilogEventLevel": "Debug",
-        "MicrosoftEventLevel": "Debug",
+        "MicrosoftEventLevel": "Fatal",
         "MicrosoftAspNetEventLevel": "Fatal"
       }
     },

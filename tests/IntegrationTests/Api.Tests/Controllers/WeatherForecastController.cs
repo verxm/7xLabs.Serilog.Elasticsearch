@@ -19,7 +19,7 @@ namespace Api.Tests.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<WeatherForecast> Get([FromHeader] int tenantId)
         {
             using var logScope = _logger.BeginScope(new Dictionary<string, object>
                 {
