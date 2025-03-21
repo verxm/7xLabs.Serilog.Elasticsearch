@@ -61,18 +61,18 @@ namespace Serilog.Elk.POC
             return configuration
                 .Enrich.FromLogContext()
                 .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder().WithDefaultDestructurers()) // https://rehansaeed.com/logging-with-serilog-exceptions/
-                .Enrich.WithProperty("ZSerivceName", EnvironmentVariableProvider.ServiceName)
-                .Enrich.WithProperty("ZMicroServiceName", EnvironmentVariableProvider.MicroServiceName)
-                .Enrich.WithProperty("ZEnvironment", EnvironmentVariableProvider.EnvironmentName);
-            //.AddTraceIdEnricher();
+                .EnrichWithEnvironment();
         }
 
-        //private static LoggerConfiguration AddTraceIdEnricher(this LoggerConfiguration configuration)
-        //{
-        //    return configuration.AddCustomEnrichers(
-        //        new TraceIdEnricher(),
-        //        new EnvironmentEnricher());
-        //}
+        private static LoggerConfiguration EnrichWithEnvironment(this LoggerConfiguration configuration)
+        {
+            return configuration
+                .Enrich.WithProperty("ZSerivceName", EnvironmentVariableProvider.ServiceName)
+                .Enrich.WithProperty("ZMicroServiceName", EnvironmentVariableProvider.MicroServiceName)
+                .Enrich.WithProperty("ZEnvironment", EnvironmentVariableProvider.EnvironmentName)
+                .Enrich.WithProperty("MachineName", Environment.MachineName)
+                .Enrich.WithProperty("RuntimeVersion", Environment.Version);
+        }
 
         private static LoggerConfiguration AddCustomEnrichers(this LoggerConfiguration configuration, params ILogEventEnricher[] enrichers)
         {
