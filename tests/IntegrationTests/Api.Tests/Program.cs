@@ -34,7 +34,8 @@ static IServiceCollection ConfigureLogger(IServiceCollection services)
     var tenantHeaderAccessor = new TenantHeaderAccessorTest();
 
     var logger = new LoggerConfiguration()
-        .AddDefaultConfigurationWithTenant(tenantHeaderAccessor)
+        .AddDefaultConfiguration()
+        .WithTenantIdEnricher(tenantHeaderAccessor)
         .CreateLogger();
 
     return services

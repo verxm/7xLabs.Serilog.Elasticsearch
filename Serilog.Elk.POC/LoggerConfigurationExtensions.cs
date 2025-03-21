@@ -26,24 +26,21 @@ namespace Serilog.Elk.POC
         }
 
         /// <summary>        
-        /// Add default configuration of MinimumLevel, Enrichers with TenantId.        
+        /// Adds TenantId enricher to LoggerConfiguration.        
         /// </summary>
-        /// <param name="tenantAccessor">Instance of an accessor responsible to get TenantId value of a context.</param>
-        //public static LoggerConfiguration AddDefaultConfigurationWithTenant(this LoggerConfiguration configuration, ITenantHeaderAccessor tenantAccessor)
-        public static LoggerConfiguration AddDefaultConfigurationWithTenant(
-            this LoggerConfiguration configuration, 
-            ITenantHeaderAccessor tenantAccessor)
+        /// <param name="tenantHeaderAccessor">Instance of an accessor responsible to get TenantId value of a context.</param>
+        public static LoggerConfiguration WithTenantIdEnricher(
+            this LoggerConfiguration configuration,
+            ITenantHeaderAccessor tenantHeaderAccessor)
         {
-            if (tenantAccessor == null)
+            if (tenantHeaderAccessor == null)
             {
-                throw new ArgumentNullException(nameof(tenantAccessor));
+                throw new ArgumentNullException(nameof(tenantHeaderAccessor));
             }
 
-            var tenantEnricher = new TenantLogEnricher(tenantAccessor);
+            var tenantEnricher = new TenantLogEnricher(tenantHeaderAccessor);
 
-            return configuration
-                .AddDefaultConfiguration()
-                .AddCustomEnrichers(tenantEnricher);
+            return configuration.AddCustomEnrichers(tenantEnricher);
         }
 
         private static LoggerConfiguration SetMinimumLevel(this LoggerConfiguration configuration)
