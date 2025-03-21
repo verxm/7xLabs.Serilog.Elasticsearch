@@ -1,4 +1,7 @@
-﻿using Serilog.Elk.POC.Extensions;
+﻿using Serilog.Core;
+using Serilog.Elk.POC.Accessors.Interfaces;
+using Serilog.Elk.POC.Enrichers;
+using Serilog.Elk.POC.Extensions;
 using Serilog.Elk.POC.Providers;
 using Serilog.Events;
 using Serilog.Exceptions;
@@ -27,18 +30,20 @@ namespace Serilog.Elk.POC
         /// </summary>
         /// <param name="tenantAccessor">Instance of an accessor responsible to get TenantId value of a context.</param>
         //public static LoggerConfiguration AddDefaultConfigurationWithTenant(this LoggerConfiguration configuration, ITenantHeaderAccessor tenantAccessor)
-        public static LoggerConfiguration AddDefaultConfigurationWithTenant(this LoggerConfiguration configuration)
+        public static LoggerConfiguration AddDefaultConfigurationWithTenant(
+            this LoggerConfiguration configuration, 
+            ITenantHeaderAccessor tenantAccessor)
         {
-            //if (tenantAccessor == null)
-            //{
-            //    throw new ArgumentNullException(nameof(tenantAccessor));
-            //}
+            if (tenantAccessor == null)
+            {
+                throw new ArgumentNullException(nameof(tenantAccessor));
+            }
 
-            // var tenantEnricher = new TenantLogEnricher(tenantAccessor);
+            var tenantEnricher = new TenantLogEnricher(tenantAccessor);
 
             return configuration
-                .AddDefaultConfiguration();
-            //.AddCustomEnrichers(tenantEnricher);
+                .AddDefaultConfiguration()
+                .AddCustomEnrichers(tenantEnricher);
         }
 
         private static LoggerConfiguration SetMinimumLevel(this LoggerConfiguration configuration)
@@ -72,11 +77,10 @@ namespace Serilog.Elk.POC
         //        new EnvironmentEnricher());
         //}
 
-        //private static LoggerConfiguration AddCustomEnrichers(this LoggerConfiguration configuration, params ILogEventEnricher[] enrichers)
-        //{
-        //    return configuration
-        //        .Enrich.With(enrichers);
-        //}
+        private static LoggerConfiguration AddCustomEnrichers(this LoggerConfiguration configuration, params ILogEventEnricher[] enrichers)
+        {
+            return configuration.Enrich.With(enrichers);
+        }
 
         private static LoggerConfiguration ConfigureElasticsearchkiSinks(this LoggerConfiguration configuration)
         {
