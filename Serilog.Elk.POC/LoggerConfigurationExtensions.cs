@@ -108,9 +108,9 @@ namespace Serilog.Elk.POC
                 });
         }
 
-        private static void HandleFailureCallback(LogEvent logEvent)
+        private static void HandleFailureCallback(LogEvent logEvent, Exception exception)
         {
-            Console.WriteLine($"Sending log to Elasticsearch failed. LogEvent.MessageTemplate: {logEvent?.MessageTemplate}");
+            Console.WriteLine($"Sending log to Elasticsearch failed. LogEvent.MessageTemplate: {logEvent?.MessageTemplate}. SendingLogExceptionMessage: {exception?.Message}");
         }
     }
 }
